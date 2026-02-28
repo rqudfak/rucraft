@@ -2,11 +2,16 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
+use App\Models\Developer;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class SkinsSeeder extends Seeder
+class DeveloperSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
         //

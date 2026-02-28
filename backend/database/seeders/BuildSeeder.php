@@ -2,13 +2,15 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
+use App\Models\Build;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class SeedsSeeder extends Seeder
+class BuildSeeder extends Seeder
 {
     public function run(): void
     {
-        //
+        
     }
 }

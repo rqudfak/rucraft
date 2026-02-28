@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class UsersSeeder extends Seeder
+class UserSeeder extends Seeder
 {
     public function run(): void
     {
@@ -15,7 +16,7 @@ class UsersSeeder extends Seeder
                 'login' => 's0la1n',
                 'email' => '',
                 'password' => Hash::make('123456'),
-                'role' => 'user',
+                'role' => 'admin',
                 'is_banned' => false,
             ],
             [
@@ -23,7 +24,7 @@ class UsersSeeder extends Seeder
                 'login' => 'mikamikisser',
                 'email' => '',
                 'password' => Hash::make('123456'),
-                'role' => 'user',
+                'role' => 'admin',
                 'is_banned' => false,
             ],
             [
@@ -31,7 +32,7 @@ class UsersSeeder extends Seeder
                 'login' => 'memesori',
                 'email' => 'nastya.davydova.2006@mail.ru',
                 'password' => Hash::make('123456'),
-                'role' => 'user',
+                'role' => 'admin',
                 'is_banned' => false,
             ],
             [
@@ -39,7 +40,7 @@ class UsersSeeder extends Seeder
                 'login' => 'zushon',
                 'email' => '',
                 'password' => Hash::make('123456'),
-                'role' => 'user',
+                'role' => 'admin',
                 'is_banned' => false,
             ],
             [
@@ -47,9 +48,22 @@ class UsersSeeder extends Seeder
                 'login' => 'levlafan1',
                 'email' => '',
                 'password' => Hash::make('123456'),
-                'role' => 'user',
+                'role' => 'admin',
                 'is_banned' => false,
             ],
-        ];
+        ]
+
+        foreach ($users as $userData) {
+            User::updateOrCreate(
+                [
+                    'name' => $userData['name'],
+                    'login' => $userData['login'],
+                    'email' => $userData['email'],
+                    'password' => $userData['password'],
+                    'role' => $userData['role'],
+                    'is_banned' => $userData['is_banned'],
+                ]
+            );
+        }
     }
 }
