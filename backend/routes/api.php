@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Api\DeveloperController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Http\Request;
@@ -13,6 +14,8 @@ Route::get('/ping', function () {
         'timestamp' => now()->toIso8601String(),
     ]);
 });
+
+Route::get('/developers', [DeveloperController::class, 'index']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
