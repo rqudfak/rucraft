@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 
 type Developer = {
   id: number;
@@ -75,14 +74,9 @@ export function DevelopersClient() {
         <h2>Слайдер</h2>
         {sliderButtons()}
         <div>
-          <Image
-            key={sliderImages[sliderIndex]}
+          <img
             src={`/images/${sliderImages[sliderIndex]}`}
             alt="Слайд разработчиков"
-            width={800}
-            height={600}
-            priority
-            unoptimized
           />
         </div>
         <p>Текущий слайд: {sliderIndex + 1}</p>
@@ -124,12 +118,7 @@ export function DevelopersClient() {
 
             {developer.skin_url && (
               <div>
-                <Image
-                  src={developer.skin_url}
-                  alt={`Скин ${developer.name}`}
-                  width={200}
-                  height={300}
-                />
+                <img src={developer.skin_url} alt={`Скин ${developer.name}`} />
               </div>
             )}
           </article>

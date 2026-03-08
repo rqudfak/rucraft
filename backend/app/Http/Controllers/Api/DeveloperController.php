@@ -14,6 +14,8 @@ class DeveloperController extends Controller
             ->orderBy('name')
             ->get()
             ->map(function (Developer $developer) {
+                $skin = $developer->skin ? basename($developer->skin) : null;
+
                 return [
                     'id' => $developer->id,
                     'name' => $developer->name,
@@ -21,8 +23,8 @@ class DeveloperController extends Controller
                     'bio' => $developer->bio,
                     'telegram' => $developer->telegram,
                     'vk' => $developer->vk,
-                    'skin_url' => $developer->skin
-                        ? asset('storage/' . $developer->skin)
+                    'skin_url' => $skin
+                        ? '/images/developers/' . $skin
                         : null,
                 ];
             });
