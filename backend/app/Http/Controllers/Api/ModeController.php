@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Mode;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
 class ModeController extends Controller
 {
@@ -44,7 +45,8 @@ class ModeController extends Controller
                 'id' => $mode->id,
                 'title' => $mode->title,
                 'description' => $mode->description,
-                'images' => $mode->images->map(fn ($image) => $image->image_path)->values(),
+                // все картинки мода строго из таблицы mode_images
+                'images' => $mode->images->pluck('image_path')->values(),
                 'file_url' => $mode->mod_file,
                 'author' => [
                     'id' => $mode->user?->id,
@@ -53,6 +55,19 @@ class ModeController extends Controller
                 'created_at' => $mode->created_at?->toIso8601String(),
             ],
         ]);
+    }
+
+    public function downloadFile(Mode $mode)
+    {
+        $path = $mode->mod_file;
+
+        if (!$path || !Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+
+        $filename = basename($path);
+
+        return Storage::disk('public')->download($path, $filename);
     }
 }
 

@@ -48,6 +48,8 @@ class SeedController extends Controller
                 'seed' => $seed->seed_number,
                 'version' => $seed->version,
                 'release' => $seed->minecraft_release,
+                // все изображения сида из таблицы seed_images
+                'images' => $seed->images->pluck('image_path')->values(),
                 'x' => (float) ($coordinates['x'] ?? 0),
                 'y' => (float) ($coordinates['y'] ?? 0),
                 'z' => (float) ($coordinates['z'] ?? 0),

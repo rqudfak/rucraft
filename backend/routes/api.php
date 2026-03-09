@@ -27,12 +27,14 @@ Route::get('/builds/{build}', [BuildController::class, 'show']);
 
 Route::get('/mods', [ModeController::class, 'index']);
 Route::get('/mods/{mode}', [ModeController::class, 'show']);
+Route::get('/mods/{mode}/download', [ModeController::class, 'downloadFile']);
 
 Route::get('/seeds', [SeedController::class, 'index']);
 Route::get('/seeds/{seed}', [SeedController::class, 'show']);
 
 Route::get('/skins', [SkinController::class, 'index']);
 Route::get('/skins/{skin}', [SkinController::class, 'show']);
+Route::get('/skins/{skin}/download', [SkinController::class, 'downloadTexture']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

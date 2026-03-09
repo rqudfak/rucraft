@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { PageSection } from "../components/PageSection";
-import { skinsApi, type SkinPost } from "@/lib/api";
-import { SkinsToolbar } from "./SkinsToolbar";
+import { skinsApi, type SkinPost, resolveAssetUrl } from "@/lib/api";
 
 export const metadata = {
   title: "Скины — RuCraft",
@@ -64,72 +63,29 @@ export default async function SkinsPage({
         ) : skins.length === 0 ? (
           <p>Скинов пока нет.</p>
         ) : (
-          <>
-            <div className="skins-page-grid">
-              {skins.map((skin) => (
-                <article key={skin.id} className="skins-page-card">
-                  <div className="skins-page-card-image">
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+            {skins.map((skin) => {
+              const imageSrc = resolveAssetUrl(skin.image) ?? "/placeholder-skin.png";
+              return (
+                <article key={skin.id} className="card">
+                  <div className="card-image">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={skin.image ?? skin.image_url ?? "/placeholder-skin.png"}
-                      alt={skin.title}
-                    />
+                    <img src={imageSrc} alt={skin.title} />
                   </div>
-                  <h3 className="skins-page-card-title">{skin.title}</h3>
-                  <p className="skins-page-card-category">{skin.category}</p>
-                  <div className="skins-page-card-footer">
-                    {skin.file_url ? (
-                      <a
-                        href={skin.file_url}
-                        className="skins-download-btn"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download
-                      >
-                        Скачать
-                      </a>
-                    ) : (
-                      <Link href={`/skins/${skin.id}`} className="skins-download-btn">
-                        Подробнее
-                      </Link>
-                    )}
+                <div className="card-body">
+                  <h3 className="card-title">{skin.title}</h3>
+                  <p className="card-meta">
+                    Автор: <strong>{skin.author.name}</strong>
+                  </p>
+                  <p className="card-text">Категория: {skin.category}</p>
+                    <Link href={`/skins/${skin.id}`} className="btn-link mt-3 inline-flex">
+                      Подробнее
+                    </Link>
                   </div>
                 </article>
-              ))}
-            </div>
-
-            {lastPage > 1 && (
-              <nav className="skins-pagination" aria-label="Пагинация">
-                {currentPage > 1 && (
-                  <Link
-                    href={
-                      category
-                        ? `/skins?category=${encodeURIComponent(category)}&page=${currentPage - 1}`
-                        : `/skins?page=${currentPage - 1}`
-                    }
-                    className="skins-pagination-link"
-                  >
-                    ← Назад
-                  </Link>
-                )}
-                <span className="skins-pagination-info">
-                  Страница {currentPage} из {lastPage} (всего {total})
-                </span>
-                {currentPage < lastPage && (
-                  <Link
-                    href={
-                      category
-                        ? `/skins?category=${encodeURIComponent(category)}&page=${currentPage + 1}`
-                        : `/skins?page=${currentPage + 1}`
-                    }
-                    className="skins-pagination-link"
-                  >
-                    Вперёд →
-                  </Link>
-                )}
-              </nav>
-            )}
-          </>
+              );
+            })}
+          </div>
         )}
       </PageSection>
     </div>

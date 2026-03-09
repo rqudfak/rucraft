@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Skin;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
 class SkinController extends Controller
 {
@@ -42,8 +43,8 @@ class SkinController extends Controller
                 'id' => $skin->id,
                 'title' => $skin->title,
                 'category' => $skin->category,
-                'image_url' => $skin->skin_image,
-                'file_url' => $skin->skin_file ?? $skin->skin_texture_file,
+                'image' => $skin->skin_image,
+                'file_url' => $skin->skin_texture_file,
                 'author' => [
                     'id' => $skin->user?->id,
                     'name' => $skin->user?->name ?? 'Неизвестный автор',
@@ -51,6 +52,19 @@ class SkinController extends Controller
                 'created_at' => $skin->created_at?->toIso8601String(),
             ],
         ]);
+    }
+
+    public function downloadTexture(Skin $skin)
+    {
+        $path = $skin->skin_texture_file;
+
+        if (!$path || !Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+
+        $filename = basename($path);
+
+        return Storage::disk('public')->download($path, $filename);
     }
 }
 
