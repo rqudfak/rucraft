@@ -97,8 +97,8 @@ class SkinSeeder extends Seeder
             [
                 'title' => 'Без фона',
                 'skin_image' => 'Превью.png',
-                'skin_file' => 'skins/без_фона/без_фона.png',
-                'skin_texture_file' => 'skins/без_фона/без_фона.png',
+                'skin_file' => 'skins/Без_фона/без_фона1.png',
+                'skin_texture_file' => 'skins/Без_фона/без_фона2.png',
                 'model' => 'Steve',
                 'category' => 'Смешные',
                 'description' => 'Скин Без фона для Майнкрафт, мальчик в новом формате 64x64 и модели Steve',
