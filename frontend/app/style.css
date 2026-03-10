@@ -303,14 +303,76 @@
 }
 
 .site-footer-inner {
-  padding: 24px 16px;
+  padding: 90px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.site-footer-logo {
+  width: 314px;
+  height: 87px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.site-footer .site-logo {
-  color: #404040;
+.site-footer-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.site-footer-content {
+  margin-top: 99px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.site-footer-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #fff;
+  font-size: 32px;
+  font-family: "Comic Sans MS", cursive, sans-serif;
+  font-weight: 400;
+  text-align: left;
+}
+
+.site-footer-text a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.site-footer-text a:hover {
+  text-decoration: underline;
+}
+
+.site-footer-link-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.site-footer-vk {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 315px;
+  height: 91px;
+}
+
+.site-footer-vk img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.site-footer-vk:hover {
+  opacity: 0.8;
 }
 
 /* Контент страницы */
