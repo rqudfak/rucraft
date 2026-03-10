@@ -549,6 +549,13 @@
   font-size: 1rem;
 }
 
+.builds-img-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .builds-more-wrap {
   position: absolute;
   left: 0;
@@ -710,6 +717,13 @@
   height: 100%;
 }
 
+.seeds-slide-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .seeds-slide-info {
   position: absolute;
   left: 0;
@@ -803,6 +817,13 @@
   min-height: 0;
   position: absolute;
   inset: 0;
+}
+
+.mods-img-fill img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .mods-img-label-left {
