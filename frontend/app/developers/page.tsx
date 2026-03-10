@@ -64,14 +64,14 @@ export default function DevelopersPage() {
 
   return (
     <main>
-      <h1>Разработчики</h1>
+      <h2>рАЗрАБоТ4ИКИ)))</h2>
 
       <section className="slider-section">
         <div className="slider-container">
           {/* Текущий слайд с анимацией */}
           <div className={`slide-wrapper ${isAnimating ? `animate-${animationDirection}` : ""}`}>
             <img
-              src={`http://localhost:8000/storage/${sliderImages[sliderIndex]}`}
+              src={`/${sliderImages[sliderIndex]}`}
               alt="Слайд разработчиков"
               className="slide-image"
             />
@@ -96,7 +96,7 @@ export default function DevelopersPage() {
           {isAnimating && (
             <div className="next-slide-preview">
               <img
-                src={`http://localhost:8000/storage/${sliderImages[nextSlideIndex]}`}
+                src={`/${sliderImages[nextSlideIndex]}`}
                 alt="Следующий слайд"
                 className="slide-image preview"
               />
@@ -155,8 +155,11 @@ export default function DevelopersPage() {
       <section className="developers-section">
         {developers.length === 0 && <p>Разработчики пока не добавлены.</p>}
 
-        {developers.map((developer) => (
-          <article key={developer.id} className="developer-card">
+        {developers.map((developer, index) => (
+          <article 
+            key={developer.id} 
+            className={`developer-card ${index % 2 === 1 ? 'developer-card-reverse' : ''}`}
+          >
             {developer.skin_url && (
               <div className="developer-skin">
                 <img src={developer.skin_url} alt={`Скин ${developer.name}`} />

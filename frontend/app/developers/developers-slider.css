@@ -1,4 +1,7 @@
-/* developers-slider.css */
+main {
+  margin: 0 auto;
+  max-width: 950px;
+}
 
 .slider-section {
   position: relative;
@@ -38,9 +41,9 @@
 .slider-nav-row.horizontal {
   top: 50%;
   transform: translateY(-50%);
-  width: 100%;
+  width: 98%;
   justify-content: space-between;
-  padding: 0 20px; /* Увеличил отступы от краев */
+  padding: 0 20px; 
 }
 
 /* Верхняя кнопка (вверх) */
@@ -107,7 +110,7 @@
   transform: rotate(90deg);
 }
 
-/* Остальные стили без изменений... */
+
 .slide-wrapper {
   position: relative;
   width: 100%;
@@ -119,7 +122,7 @@
 
 .slide-image {
   width: 100%;
-  height: auto;
+  height: 500px;
   display: block;
   border-radius: 12px;
 }
@@ -300,15 +303,6 @@
   100% { opacity: 1; }
 }
 
-/* Счётчик слайдов */
-.slide-counter {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 18px;
-  font-weight: 500;
-  color: #0a0a0a;
-}
-
 /* Стили для карточек разработчиков */
 .developers-section {
   display: flex;
@@ -321,8 +315,12 @@
 
 .developer-card {
   display: flex;
+  align-items: center;
   gap: 24px;
   padding: 20px;
+}
+.developer-card-reverse {
+  flex-direction: row-reverse;
 }
 
 .developer-skin {
@@ -352,11 +350,11 @@
 .developer-info h3 {
   margin: 0;
   font-size: 1.5rem;
-  color: #0a0a0a;
+  color: #fff;
 }
 
 .developer-role {
-  color: #fff;
+  color: #B5E61D;
   font-weight: 600;
   margin: 0;
   font-size: 1.1rem;
@@ -370,6 +368,7 @@
 
 .developer-social {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   margin: 4px 0;
   padding: 8px 0;
@@ -380,17 +379,17 @@
 }
 
 .social-link a {
-  color: #0a0a0a;
+  color: #22B14C;
   text-decoration: none;
   font-weight: 500;
   padding: 4px 12px;
-  background: #e0e0e0;
+  background: #fff;
   border-radius: 20px;
   transition: all 0.2s ease;
 }
 
 .social-link a:hover {
-  background: #fff;
+  background: #e4e4e4;
   text-decoration: none;
 }
 
