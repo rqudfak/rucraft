@@ -42,7 +42,7 @@ export default function RegisterPage() {
   return (
     <div className={styles.pageContent}>
       <PageSection title="">
-        <h1 className="styles.sectionTitle">Регистрация</h1>
+        <h1 className={styles.sectionTitle}>РЕГИСТРАЦИЯ</h1>
         <form action={ACTION_REGISTER} method="post" onSubmit={handleSubmit} className={styles.formStack}>
           {error && <p className={styles.formError}>{error}</p>}
           
@@ -148,7 +148,7 @@ export default function RegisterPage() {
             disabled={loading} 
             className={styles.btnSubmit}
           >
-            {loading ? "Регистрация…" : "Зарегистрироваться"}
+            {loading ? "Регистрация…" : "зАРЕГИСТРИРОВАТЬСЯ"}
           </button>
         </form>
         
