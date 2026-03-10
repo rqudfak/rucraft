@@ -1539,3 +1539,75 @@
   66%, 94% { transform: translateX(-66.666%); }
   100% { transform: translateX(-66.666%); }
 }
+
+/* ========================================
+   ФУТЕР — АДАПТИВ
+   ======================================== */
+
+/* Планшеты: уменьшаем логотип и отступы */
+@media (max-width: 768px) {
+  .site-footer-inner {
+    padding: 60px 16px 20px;
+  }
+
+  .site-footer-logo {
+    width: 200px;
+    height: 56px;
+  }
+
+  .site-footer-content {
+    margin-top: 60px;
+  }
+
+  .site-footer-text {
+    font-size: 24px;
+    text-align: center;
+    align-items: center;
+  }
+
+  .site-footer-link-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .site-footer-vk {
+    width: 200px;
+    height: 58px;
+  }
+}
+
+/* Мобильные: компактный вид */
+@media (max-width: 480px) {
+  .site-footer-inner {
+    padding: 40px 12px 16px;
+  }
+
+  .site-footer-logo {
+    width: 140px;
+    height: 39px;
+  }
+
+  .site-footer-content {
+    margin-top: 40px;
+  }
+
+  .site-footer-text {
+    font-size: 16px;
+    gap: 6px;
+  }
+
+  .site-footer-link-row {
+    gap: 8px;
+  }
+
+  .site-footer-link-row a[href*="vk.com"] {
+    font-size: 14px;
+    word-break: break-all;
+  }
+
+  .site-footer-vk {
+    width: 140px;
+    height: 41px;
+  }
+}
