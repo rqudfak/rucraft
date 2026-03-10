@@ -62,56 +62,11 @@ export default function DevelopersPage() {
     }, 1500);
   }
 
-  function sliderButtons() {
-    return (
-      <div className="slider-controls">
-        <div className="slider-nav-row">
-          <button
-            type="button"
-            onClick={() => moveSlider(-1, "left")}
-            disabled={isAnimating}
-            className="slider-nav-btn"
-          >
-            ←
-          </button>
-          <button
-            type="button"
-            onClick={() => moveSlider(1, "right")}
-            disabled={isAnimating}
-            className="slider-nav-btn"
-          >
-            →
-          </button>
-        </div>
-        <div className="slider-nav-row">
-          <button
-            type="button"
-            onClick={() => moveSlider(-1, "up")}
-            disabled={isAnimating}
-            className="slider-nav-btn"
-          >
-            ↑
-          </button>
-          <button
-            type="button"
-            onClick={() => moveSlider(1, "down")}
-            disabled={isAnimating}
-            className="slider-nav-btn"
-          >
-            ↓
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <main>
       <h1>Разработчики</h1>
 
       <section className="slider-section">
-        {sliderButtons()}
-
         <div className="slider-container">
           {/* Текущий слайд с анимацией */}
           <div className={`slide-wrapper ${isAnimating ? `animate-${animationDirection}` : ""}`}>
@@ -147,6 +102,53 @@ export default function DevelopersPage() {
               />
             </div>
           )}
+
+          {/* Кнопки навигации внутри слайдера */}
+          <div className="slider-nav-overlay">
+            {/* Горизонтальные кнопки (влево/вправо) */}
+            <div className="slider-nav-row horizontal">
+              <button
+                type="button"
+                onClick={() => moveSlider(-1, "left")}
+                disabled={isAnimating}
+                className="slider-nav-btn left"
+              >
+                <img src="/developers/strelka.svg" alt="влево" width="24" height="24" />
+              </button>
+              <button
+                type="button"
+                onClick={() => moveSlider(1, "right")}
+                disabled={isAnimating}
+                className="slider-nav-btn right"
+              >
+                <img src="/developers/strelka.svg" alt="вправо" width="24" height="24" />
+              </button>
+            </div>
+            
+            {/* Верхняя кнопка (вверх) */}
+            <div className="slider-nav-row top">
+              <button
+                type="button"
+                onClick={() => moveSlider(-1, "up")}
+                disabled={isAnimating}
+                className="slider-nav-btn up"
+              >
+                <img src="/developers/strelka.svg" alt="вверх" width="24" height="24" />
+              </button>
+            </div>
+
+            {/* Нижняя кнопка (вниз) */}
+            <div className="slider-nav-row bottom">
+              <button
+                type="button"
+                onClick={() => moveSlider(1, "down")}
+                disabled={isAnimating}
+                className="slider-nav-btn down"
+              >
+                <img src="/developers/strelka.svg" alt="вниз" width="24" height="24" />
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
