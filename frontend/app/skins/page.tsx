@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { PageSection } from "../components/PageSection";
 import { skinsApi, type SkinPost, type SkinsIndexResponse, resolveAssetUrl, getBackendBaseUrl } from "@/lib/api";
 import { SkinsToolbar } from "./SkinsToolbar";
+import { Skin3DViewer } from "./Skin3DViewer";
 
 export const metadata = {
   title: "Скины — RuCraft",
@@ -59,8 +60,7 @@ export default async function SkinsPage(props: { searchParams?: Promise<{ page?:
                   return (
                     <article key={skin.id} className="skin-card-page">
                       <div className="skin-card-image-wrap">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={imageSrc} alt={skin.title} />
+                        <Skin3DViewer skinUrl={imageSrc} title={skin.title} className="skin-card-canvas" />
                       </div>
                       <h3 className="skin-card-name">{skin.title}</h3>
                       <p className="skin-card-category">{skin.category}</p>
