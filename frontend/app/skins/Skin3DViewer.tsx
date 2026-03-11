@@ -14,6 +14,13 @@ export function Skin3DViewer({ skinUrl, title, className }: Skin3DViewerProps) {
   useEffect(() => {
     if (!containerRef.current) return;
 
+    const normalizedUrl = (skinUrl ?? "").toString().trim();
+    if (!normalizedUrl) {
+      // Нет валидного URL — не инициализируем viewer
+      containerRef.current.innerHTML = "";
+      return;
+    }
+
     let viewer: any | null = null;
     let disposed = false;
 
@@ -39,7 +46,7 @@ export function Skin3DViewer({ skinUrl, title, className }: Skin3DViewerProps) {
           canvas,
           width: 220,
           height: 260,
-          skin: skinUrl,
+          skin: normalizedUrl,
         });
 
         viewer.zoom = 0.9;
