@@ -54,7 +54,8 @@ export default async function SkinsPage(props: { searchParams?: Promise<{ page?:
             <>
               <div className="skins-grid-page">
                 {skins.map((skin) => {
-                  const imageSrc = resolveAssetUrl(skin.file_url ?? skin.image) ?? "/placeholder-skin.png";
+                  const imageSrc =
+                    resolveAssetUrl(skin.file_url ?? skin.image ?? undefined) ?? "/placeholder-skin.png";
                   const downloadUrl = buildDownloadUrl(skin.id);
 
                   return (
