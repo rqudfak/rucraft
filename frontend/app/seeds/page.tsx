@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { PageSection } from "../components/PageSection";
 import { seedsApi, type SeedPost, resolveAssetUrl } from "@/lib/api";
-import MinecraftSeedGenerator from "../components/MinecraftSeedGenerator"; 
+import { SeedsToolbar } from "./SeedsToolbar";
+import MinecraftSeedGenerator from "../components/MinecraftSeedGenerator";
 
 export const metadata = {
   title: "Сиды — RuCraft",
@@ -30,6 +32,9 @@ export default async function SeedsPage() {
   return (
     <div className="page-content">
       <PageSection title="Сиды">
+        <Suspense fallback={null}>
+          <SeedsToolbar />
+        </Suspense>
         <div className="mb-6">
           <Link href="/seeds/map" className="btn-link inline-flex">
             Открыть карту сидов

@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { resolveAssetUrl } from "@/lib/api";
+import { getAbsoluteAssetUrl } from "@/lib/api";
 
 interface Skin3DViewerProps {
   skinUrl?: string | null;
@@ -56,8 +56,8 @@ export function Skin3DViewer({ skinUrl, title, className }: Skin3DViewerProps) {
         return;
       }
 
-      // Получаем финальный URL через resolveAssetUrl
-      resolvedUrl = resolveAssetUrl(trimmedUrl);
+      // Получаем абсолютный URL через getAbsoluteAssetUrl (нужно для skinview3d)
+      resolvedUrl = getAbsoluteAssetUrl(trimmedUrl, 'skins');
       
       console.log(`[Skin3DViewer] Resolved URL for ${title}:`, resolvedUrl);
       

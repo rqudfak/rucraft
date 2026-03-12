@@ -7,18 +7,18 @@ export const getBackendBaseUrl = () => {
   return String(apiBase).replace(/\/api\/?$/, "");
 };
 
-export const resolveAssetUrl = (path?: string | null): string | null => {
+export const resolveAssetUrl = (path?: string | null, type: string = 'skins'): string | null => {
   // Безопасная проверка
   if (path === null || path === undefined) {
     console.log('[resolveAssetUrl] Path is null or undefined');
     return null;
   }
-  
+
   if (typeof path !== 'string') {
     console.log('[resolveAssetUrl] Path is not a string:', typeof path);
     return null;
   }
-  
+
   const cleanPath = path.trim();
   if (!cleanPath || cleanPath === "null" || cleanPath === "undefined") {
     console.log('[resolveAssetUrl] Empty or invalid path');
@@ -30,11 +30,31 @@ export const resolveAssetUrl = (path?: string | null): string | null => {
     return cleanPath;
   }
 
-  // Извлекаем имя файла из пути
+  // Если это уже полный URL localhost:8000
+  if (cleanPath.includes('localhost:8000')) {
+    return cleanPath;
+  }
+
+  // Извлекаем имя файла из пути (например, "skins/abc.png" -> "abc.png")
   const filename = cleanPath.split('/').pop() || '';
+
+  // Используем универсальный маршрут для контента
+  return `/content-image/${encodeURIComponent(type)}/${encodeURIComponent(filename)}`;
+};
+
+// Функция для получения абсолютного URL для изображений (нужна для skinview3d)
+export const getAbsoluteAssetUrl = (path?: string | null, type: string = 'skins'): string | null => {
+  const relative = resolveAssetUrl(path, type);
+  if (!relative) return null;
   
-  // Используем прокси маршрут
-  return `/skin-image/${encodeURIComponent(filename)}`;
+  // Если это уже абсолютный URL
+  if (relative.startsWith('http')) {
+    return relative;
+  }
+  
+  // Добавляем базовый URL бэкенда
+  const backendUrl = getBackendBaseUrl().replace(/\/$/, "");
+  return `${backendUrl}${relative}`;
 };
 
 export type ApiError = { message: string; errors?: Record<string, string[]> };
@@ -259,16 +279,55 @@ export type ShowResponse<T> = {
 export const buildsApi = {
   index: () => apiFetch<{ data: BuildPost[] }>("builds"),
   show: (id: number) => apiFetch<ShowResponse<BuildPost>>(`builds/${id}`),
+  create: (formData: FormData) => {
+    const base = getBaseUrl().replace(/\/$/, "");
+    const token = typeof window !== "undefined" ? localStorage.getItem("rucraft_token") : null;
+    return fetch(`${base}/builds`, {
+      method: "POST",
+      headers: { Accept: "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: formData,
+    }).then(async (res) => {
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error((data as { message?: string }).message ?? String(res.status));
+      return data as { message: string; data: { id: number; title: string } };
+    });
+  },
 };
 
 export const modsApi = {
   index: () => apiFetch<{ data: ModPost[] }>("mods"),
   show: (id: number) => apiFetch<ShowResponse<ModPost>>(`mods/${id}`),
+  create: (formData: FormData) => {
+    const base = getBaseUrl().replace(/\/$/, "");
+    const token = typeof window !== "undefined" ? localStorage.getItem("rucraft_token") : null;
+    return fetch(`${base}/mods`, {
+      method: "POST",
+      headers: { Accept: "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: formData,
+    }).then(async (res) => {
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error((data as { message?: string }).message ?? String(res.status));
+      return data as { message: string; data: { id: number; title: string } };
+    });
+  },
 };
 
 export const seedsApi = {
   index: () => apiFetch<{ data: SeedPost[] }>("seeds"),
   show: (id: number) => apiFetch<ShowResponse<SeedPost>>(`seeds/${id}`),
+  create: (formData: FormData) => {
+    const base = getBaseUrl().replace(/\/$/, "");
+    const token = typeof window !== "undefined" ? localStorage.getItem("rucraft_token") : null;
+    return fetch(`${base}/seeds`, {
+      method: "POST",
+      headers: { Accept: "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: formData,
+    }).then(async (res) => {
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error((data as { message?: string }).message ?? String(res.status));
+      return data as { message: string; data: { id: number; title: string } };
+    });
+  },
 };
 
 export type SkinsIndexResponse = {
@@ -293,16 +352,238 @@ export const skinsApi = {
   create: (formData: FormData) => {
     const base = getBaseUrl().replace(/\/$/, "");
     const token = typeof window !== "undefined" ? localStorage.getItem("rucraft_token") : null;
+    console.log('[skinsApi.create] URL:', `${base}/skins`);
+    console.log('[skinsApi.create] Token:', token ? 'present' : 'missing');
+    console.log('[skinsApi.create] FormData entries:', Array.from(formData.entries()));
     return fetch(`${base}/skins`, {
       method: "POST",
-      headers: { Accept: "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      headers: {
+        Accept: "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        // Не указываем Content-Type - браузер сам установит multipart/form-data с boundary
+      },
       body: formData,
     }).then(async (res) => {
       const data = await res.json().catch(() => ({}));
+      console.log('[skinsApi.create] Response status:', res.status, res.statusText);
+      console.log('[skinsApi.create] Response data:', data);
       if (!res.ok) throw new Error((data as { message?: string }).message ?? String(res.status));
       return data as CreateSkinResponse;
     });
   },
+};
+
+// ——— Moderation: Skins ———
+
+export type ModerationRequest = {
+  id: number;
+  user_id: number;
+  title: string;
+  skin_texture_file: string;
+  model: "Steve" | "Alex";
+  category: string;
+  description: string | null;
+  status: "pending" | "approved" | "rejected";
+  admin_comment: string | null;
+  reviewed_by: number | null;
+  created_at: string;
+  updated_at: string;
+  user: { id: number; name: string; login: string };
+  reviewer: { id: number; name: string } | null;
+};
+
+export type ModerationIndexResponse = {
+  data: ModerationRequest[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+};
+
+export const moderationApi = {
+  getSkins: (params?: { per_page?: number; page?: number; status?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.per_page) q.set("per_page", String(params.per_page));
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.status) q.set("status", params.status);
+    const query = q.toString();
+    return apiFetch<ModerationIndexResponse>(`admin/skins/moderation${query ? `?${query}` : ""}`, { token: getToken() });
+  },
+  getSkin: (id: number) =>
+    apiFetch<{ data: ModerationRequest }>(`admin/skins/moderation/${id}`, { token: getToken() }),
+  approve: (id: number, adminComment?: string) =>
+    apiFetch<{ message: string; data: { skin_id: number; moderation_request_id: number } }>(
+      `admin/skins/moderation/${id}/approve`,
+      {
+        method: "POST",
+        body: JSON.stringify({ admin_comment: adminComment || null }),
+        token: getToken(),
+      }
+    ),
+  reject: (id: number, adminComment: string) =>
+    apiFetch<{ message: string; data: { moderation_request_id: number } }>(
+      `admin/skins/moderation/${id}/reject`,
+      {
+        method: "POST",
+        body: JSON.stringify({ admin_comment: adminComment }),
+        token: getToken(),
+      }
+    ),
+};
+
+// ——— Moderation: Builds ———
+
+export type BuildModerationRequest = {
+  id: number;
+  user_id: number;
+  title: string;
+  minecraft_version: string;
+  image: string | null;
+  build_file: string | null;
+  description: string | null;
+  difficulty: string;
+  materials: { name: string; count: number }[] | null;
+  status: "pending" | "approved" | "rejected";
+  admin_comment: string | null;
+  reviewed_by: number | null;
+  created_at: string;
+  updated_at: string;
+  user: { id: number; name: string; login: string };
+  reviewer: { id: number; name: string } | null;
+};
+
+export const buildModerationApi = {
+  getBuilds: (params?: { per_page?: number; page?: number; status?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.per_page) q.set("per_page", String(params.per_page));
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.status) q.set("status", params.status);
+    const query = q.toString();
+    return apiFetch<{ data: BuildModerationRequest[]; current_page: number; last_page: number; per_page: number; total: number }>(`admin/builds/moderation${query ? `?${query}` : ""}`, { token: getToken() });
+  },
+  getBuild: (id: number) =>
+    apiFetch<{ data: BuildModerationRequest }>(`admin/builds/moderation/${id}`, { token: getToken() }),
+  approve: (id: number, adminComment?: string) =>
+    apiFetch<{ message: string; data: { build_id: number } }>(
+      `admin/builds/moderation/${id}/approve`,
+      {
+        method: "POST",
+        body: JSON.stringify({ admin_comment: adminComment || null }),
+        token: getToken(),
+      }
+    ),
+  reject: (id: number, adminComment: string) =>
+    apiFetch<{ message: string; data: { moderation_request_id: number } }>(
+      `admin/builds/moderation/${id}/reject`,
+      {
+        method: "POST",
+        body: JSON.stringify({ admin_comment: adminComment }),
+        token: getToken(),
+      }
+    ),
+};
+
+// ——— Moderation: Mods ———
+
+export type ModModerationRequest = {
+  id: number;
+  user_id: number;
+  title: string;
+  description: string;
+  image: string | null;
+  mod_file: string;
+  version: string;
+  minecraft_version: string | null;
+  status: "pending" | "approved" | "rejected";
+  admin_comment: string | null;
+  reviewed_by: number | null;
+  created_at: string;
+  updated_at: string;
+  user: { id: number; name: string; login: string };
+  reviewer: { id: number; name: string } | null;
+};
+
+export const modModerationApi = {
+  getMods: (params?: { per_page?: number; page?: number; status?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.per_page) q.set("per_page", String(params.per_page));
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.status) q.set("status", params.status);
+    const query = q.toString();
+    return apiFetch<{ data: ModModerationRequest[]; current_page: number; last_page: number; per_page: number; total: number }>(`admin/mods/moderation${query ? `?${query}` : ""}`, { token: getToken() });
+  },
+  getMod: (id: number) =>
+    apiFetch<{ data: ModModerationRequest }>(`admin/mods/moderation/${id}`, { token: getToken() }),
+  approve: (id: number, adminComment?: string) =>
+    apiFetch<{ message: string; data: { mod_id: number } }>(
+      `admin/mods/moderation/${id}/approve`,
+      {
+        method: "POST",
+        body: JSON.stringify({ admin_comment: adminComment || null }),
+        token: getToken(),
+      }
+    ),
+  reject: (id: number, adminComment: string) =>
+    apiFetch<{ message: string; data: { moderation_request_id: number } }>(
+      `admin/mods/moderation/${id}/reject`,
+      {
+        method: "POST",
+        body: JSON.stringify({ admin_comment: adminComment }),
+        token: getToken(),
+      }
+    ),
+};
+
+// ——— Moderation: Seeds ———
+
+export type SeedModerationRequest = {
+  id: number;
+  user_id: number;
+  title: string;
+  seed_number: string;
+  version: string;
+  minecraft_release: string | null;
+  coordinates: { x: number; y: number; z: number } | null;
+  image: string | null;
+  description: string | null;
+  status: "pending" | "approved" | "rejected";
+  admin_comment: string | null;
+  reviewed_by: number | null;
+  created_at: string;
+  updated_at: string;
+  user: { id: number; name: string; login: string };
+  reviewer: { id: number; name: string } | null;
+};
+
+export const seedModerationApi = {
+  getSeeds: (params?: { per_page?: number; page?: number; status?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.per_page) q.set("per_page", String(params.per_page));
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.status) q.set("status", params.status);
+    const query = q.toString();
+    return apiFetch<{ data: SeedModerationRequest[]; current_page: number; last_page: number; per_page: number; total: number }>(`admin/seeds/moderation${query ? `?${query}` : ""}`, { token: getToken() });
+  },
+  getSeed: (id: number) =>
+    apiFetch<{ data: SeedModerationRequest }>(`admin/seeds/moderation/${id}`, { token: getToken() }),
+  approve: (id: number, adminComment?: string) =>
+    apiFetch<{ message: string; data: { seed_id: number } }>(
+      `admin/seeds/moderation/${id}/approve`,
+      {
+        method: "POST",
+        body: JSON.stringify({ admin_comment: adminComment || null }),
+        token: getToken(),
+      }
+    ),
+  reject: (id: number, adminComment: string) =>
+    apiFetch<{ message: string; data: { moderation_request_id: number } }>(
+      `admin/seeds/moderation/${id}/reject`,
+      {
+        method: "POST",
+        body: JSON.stringify({ admin_comment: adminComment }),
+        token: getToken(),
+      }
+    ),
 };
 
 // ——— Analytics ———

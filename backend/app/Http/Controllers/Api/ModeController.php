@@ -4,11 +4,102 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Mode;
+use App\Models\ModModerationRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ModeController extends Controller
 {
+    /**
+     * Создать новую заявку на мод (для авторизованных пользователей)
+     */
+    public function store(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string|max:2000',
+                'version' => 'required|in:java,bedrock,java_bedrock',
+                'minecraft_version' => 'required|string|max:255',
+                'image_file' => 'required|file|mimes:png,jpg,jpeg|max:20480',
+                'mod_file' => 'required|file|max:102400', // 100MB
+            ], [
+                'title.required' => 'Название обязательно',
+                'version.required' => 'Версия обязательна',
+                'version.in' => 'Неверная версия (допустимы: java, bedrock, java_bedrock)',
+                'minecraft_version.required' => 'Версия Minecraft обязательна',
+                'image_file.required' => 'Изображение обязательно',
+                'image_file.mimes' => 'Изображение должно быть PNG, JPG или JPEG',
+                'image_file.max' => 'Размер изображения не более 20 МБ',
+                'mod_file.required' => 'Файл мода обязателен',
+                'mod_file.max' => 'Размер файла мода не более 100 МБ',
+            ]);
+
+            $user = $request->user();
+
+            // Сохранение изображения
+            $imageFile = $request->file('image_file');
+            $imageFilename = uniqid() . '_' . $imageFile->getClientOriginalName();
+            $imagePath = $imageFile->storeAs('mods', $imageFilename, 'public');
+
+            // Сохранение файла мода
+            $modFile = $request->file('mod_file');
+            $modFilename = uniqid() . '_' . $modFile->getClientOriginalName();
+            $modFilePath = $modFile->storeAs('mods', $modFilename, 'public');
+
+            // Создание заявки на модерацию
+            $moderationRequest = ModModerationRequest::create([
+                'user_id' => $user->id,
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'image' => $imagePath,
+                'mod_file' => $modFilePath,
+                'version' => $validated['version'],
+                'minecraft_version' => $validated['minecraft_version'],
+                'status' => 'pending',
+            ]);
+
+            return response()->json([
+                'message' => 'Мод отправлен на модерацию',
+                'data' => [
+                    'id' => $moderationRequest->id,
+                    'title' => $moderationRequest->title,
+                    'status' => $moderationRequest->status,
+                ],
+            ], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if (isset($imagePath)) {
+                Storage::disk('public')->delete($imagePath);
+            }
+            if (isset($modFilePath)) {
+                Storage::disk('public')->delete($modFilePath);
+            }
+
+            return response()->json([
+                'error' => 'Ошибка валидации',
+                'message' => $e->getMessage(),
+                'errors' => $e->errors(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            if (isset($imagePath)) {
+                Storage::disk('public')->delete($imagePath);
+            }
+            if (isset($modFilePath)) {
+                Storage::disk('public')->delete($modFilePath);
+            }
+
+            Log::error('Error in ModeController@store', ['error' => $e->getMessage()]);
+            return response()->json([
+                'error' => 'Не удалось создать заявку',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function index(): JsonResponse
     {
         $modes = Mode::query()

@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { PageSection } from "../components/PageSection";
 import { buildsApi, type BuildPost, resolveAssetUrl } from "@/lib/api";
+import { BuildsToolbar } from "./BuildsToolbar";
 
 export const metadata = {
   title: "Постройки — RuCraft",
@@ -23,6 +25,9 @@ export default async function BuildsPage() {
   return (
     <div className="page-content">
       <PageSection title="Постройки">
+        <Suspense fallback={null}>
+          <BuildsToolbar />
+        </Suspense>
         {fetchFailed ? (
           <p className="form-error">
             Не удалось загрузить данные. Убедитесь, что бэкенд запущен (<code>php artisan serve</code>) и в <code>.env.local</code> указан <code>NEXT_PUBLIC_API_URL</code> (например, http://localhost:8000/api).

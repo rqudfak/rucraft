@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { PageSection } from "../components/PageSection";
 import { modsApi, type ModPost, resolveAssetUrl } from "@/lib/api";
+import { ModsToolbar } from "./ModsToolbar";
 
 export const metadata = {
   title: "Моды — RuCraft",
@@ -29,6 +31,9 @@ export default async function ModsPage() {
   return (
     <div className="page-content">
       <PageSection title="Моды">
+        <Suspense fallback={null}>
+          <ModsToolbar />
+        </Suspense>
         {fetchFailed ? (
           apiErrorMessage
         ) : mods.length === 0 ? (
