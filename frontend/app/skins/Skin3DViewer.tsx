@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 
 interface Skin3DViewerProps {
-  skinUrl: string;
+  skinUrl?: string | null;
   title: string;
   className?: string;
 }
@@ -15,16 +15,18 @@ export function Skin3DViewer({ skinUrl, title, className }: Skin3DViewerProps) {
     // 1. Если нет контейнера - выходим
     if (!containerRef.current) return;
 
-    // 2. ГАРАНТИРУЕМ, что skinUrl - это строка и она не пустая
-    // Если это null, undefined или что-то еще - очищаем и выходим
-    if (typeof skinUrl !== "string" || !skinUrl || skinUrl === "null") {
+    // 2. Если skinUrl отсутствует, null, undefined или не строка - очищаем и выходим
+    if (skinUrl == null || typeof skinUrl !== "string") {
       containerRef.current.innerHTML = "";
       return;
     }
 
-    // 3. Только ТЕПЕРЬ безопасно вызываем trim
+    // 3. Убираем пробелы и проверяем, не пустая ли строка
     const normalizedUrl = skinUrl.trim();
-    if (!normalizedUrl) return;
+    if (!normalizedUrl || normalizedUrl === "null") {
+      containerRef.current.innerHTML = "";
+      return;
+    }
 
     let viewer: any | null = null;
     let disposed = false;
