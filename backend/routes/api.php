@@ -63,6 +63,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/users/{user}/unban', [AdminUserController::class, 'unban']);
         Route::get('/analytics', [AnalyticsController::class, 'index']);
     });
+
+    Route::post('/skins/submit', [SkinController::class, 'submit']);
 });
 
 Route::get('/debug-skins-full', function() {
