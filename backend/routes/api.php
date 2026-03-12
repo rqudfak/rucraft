@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Api\Admin\AnalyticsController;
 use App\Http\Controllers\Api\DeveloperController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProfileController;
@@ -55,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/users', [AdminUserController::class, 'index']);
         Route::post('/users/{user}/ban', [AdminUserController::class, 'ban']);
         Route::post('/users/{user}/unban', [AdminUserController::class, 'unban']);
+        Route::get('/analytics', [AnalyticsController::class, 'index']);
     });
 });
 

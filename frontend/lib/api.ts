@@ -92,7 +92,7 @@ export async function getCsrfCookie(): Promise<boolean> {
   }
 }
 
-// ==== ЗДЕСЬ ВСТАВЛЯЕМ ОБНОВЛЕННУЮ ФУНКЦИЮ apiFetch ====
+// Функция apiFetch с поддержкой FormData
 export async function apiFetch<T = unknown>(
   path: string,
   options?: RequestInit & { token?: string | null; requiresCsrf?: boolean; isFormData?: boolean }
@@ -230,9 +230,7 @@ export async function apiFetch<T = unknown>(
     throw error;
   }
 }
-// ==== КОНЕЦ ОБНОВЛЕННОЙ ФУНКЦИИ apiFetch ====
 
-// Остальной код без изменений...
 export type PingResponse = {
   ok: boolean;
   message: string;
@@ -463,9 +461,8 @@ export const skinsApi = {
     });
   },
   
-  // ИСПРАВЛЕННЫЙ МЕТОД submitForReview с использованием apiFetch
+  // Метод для отправки на рассмотрение
   submitForReview: async (formData: FormData) => {
-    // Используем apiFetch с флагом isFormData: true
     return apiFetch<{ success: boolean; message: string; data?: any }>("skins/submit", {
       method: "POST",
       token: getToken(),
@@ -474,4 +471,40 @@ export const skinsApi = {
       body: formData,
     });
   },
+};
+
+// ——— Analytics ———
+
+export type AnalyticsSummary = {
+  total_users: number;
+  banned_users: number;
+  active_users: number;
+  total_skins: number;
+  total_builds: number;
+  total_modes: number;
+  total_seeds: number;
+};
+
+export type AnalyticsChartItem = {
+  name: string;
+  value: number;
+};
+
+export type AnalyticsMonthItem = {
+  month: string;
+  count: number;
+};
+
+export type AnalyticsResponse = {
+  summary: AnalyticsSummary;
+  skins_by_category: AnalyticsChartItem[];
+  skins_by_status: AnalyticsChartItem[];
+  users_by_role: AnalyticsChartItem[];
+  new_users_by_month: AnalyticsMonthItem[];
+  content_by_type: AnalyticsChartItem[];
+};
+
+export const analyticsApi = {
+  index: () =>
+    apiFetch<AnalyticsResponse>("admin/analytics", { token: getToken() }),
 };
