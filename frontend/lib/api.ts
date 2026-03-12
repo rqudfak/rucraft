@@ -1,3 +1,5 @@
+// lib/api.ts
+
 export const getBaseUrl = () =>
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
@@ -65,7 +67,6 @@ export async function getCsrfCookie(): Promise<boolean> {
     });
     
     console.log('[CSRF] Response status:', response.status);
-    console.log('[CSRF] Response headers:', Object.fromEntries(response.headers.entries()));
     
     if (!response.ok) {
       console.error('[CSRF] Failed:', await response.text());
@@ -79,6 +80,10 @@ export async function getCsrfCookie(): Promise<boolean> {
     // Ждем установки cookie
     await new Promise(resolve => setTimeout(resolve, 500));
     
+    // Проверяем наличие XSRF-TOKEN
+    const hasXsrfToken = cookies.includes('XSRF-TOKEN=');
+    console.log('[CSRF] Has XSRF-TOKEN:', hasXsrfToken);
+    
     return true;
     
   } catch (error) {
@@ -87,17 +92,17 @@ export async function getCsrfCookie(): Promise<boolean> {
   }
 }
 
-// ЕДИНСТВЕННАЯ функция apiFetch
+// ==== ЗДЕСЬ ВСТАВЛЯЕМ ОБНОВЛЕННУЮ ФУНКЦИЮ apiFetch ====
 export async function apiFetch<T = unknown>(
   path: string,
-  options?: RequestInit & { token?: string | null; requiresCsrf?: boolean }
+  options?: RequestInit & { token?: string | null; requiresCsrf?: boolean; isFormData?: boolean }
 ): Promise<T> {
-  const { token: optToken, requiresCsrf, ...rest } = options ?? {};
+  const { token: optToken, requiresCsrf, isFormData, ...rest } = options ?? {};
   const token = optToken ?? getToken();
   
   const url = `${getBaseUrl().replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
   
-  console.log(`[API] Fetching ${url}, requiresCsrf: ${requiresCsrf}`);
+  console.log(`[API] Fetching ${url}, requiresCsrf: ${requiresCsrf}, isFormData: ${isFormData}`);
   
   // Для маршрутов, требующих CSRF
   let xsrfToken: string | null = null;
@@ -118,12 +123,16 @@ export async function apiFetch<T = unknown>(
   }
   
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
     "Accept": "application/json",
     "X-Requested-With": "XMLHttpRequest",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...rest.headers as Record<string, string>,
   };
+  
+  // Для FormData не устанавливаем Content-Type
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
   
   // Добавляем XSRF-TOKEN в заголовок для Laravel
   if (xsrfToken) {
@@ -133,9 +142,14 @@ export async function apiFetch<T = unknown>(
   
   const fetchOptions: RequestInit = {
     ...rest,
-    credentials: 'include', // Всегда include для всех запросов
+    credentials: 'include',
     headers,
   };
+  
+  // Для FormData не нужно преобразовывать body
+  if (!isFormData && rest.body && typeof rest.body !== 'string') {
+    fetchOptions.body = JSON.stringify(rest.body);
+  }
   
   try {
     const res = await fetch(url, fetchOptions);
@@ -216,6 +230,7 @@ export async function apiFetch<T = unknown>(
     throw error;
   }
 }
+// ==== КОНЕЦ ОБНОВЛЕННОЙ ФУНКЦИИ apiFetch ====
 
 // Остальной код без изменений...
 export type PingResponse = {
@@ -431,7 +446,9 @@ export const skinsApi = {
     const query = q.toString();
     return apiFetch<SkinsIndexResponse>(`skins${query ? `?${query}` : ""}`);
   },
+  
   show: (id: number) => apiFetch<ShowResponse<SkinPost>>(`skins/${id}`),
+  
   create: (formData: FormData) => {
     const base = getBaseUrl().replace(/\/$/, "");
     const token = typeof window !== "undefined" ? localStorage.getItem("rucraft_token") : null;
@@ -443,6 +460,18 @@ export const skinsApi = {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error((data as { message?: string }).message ?? String(res.status));
       return data as CreateSkinResponse;
+    });
+  },
+  
+  // ИСПРАВЛЕННЫЙ МЕТОД submitForReview с использованием apiFetch
+  submitForReview: async (formData: FormData) => {
+    // Используем apiFetch с флагом isFormData: true
+    return apiFetch<{ success: boolean; message: string; data?: any }>("skins/submit", {
+      method: "POST",
+      token: getToken(),
+      requiresCsrf: true,
+      isFormData: true,
+      body: formData,
     });
   },
 };

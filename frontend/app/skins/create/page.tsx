@@ -20,13 +20,12 @@ export default function CreateSkinPage() {
   const [skinDataURL, setSkinDataURL] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<"2d" | "3d">("3d");
   
-  // Исправлено: используем правильный тип ref
   const canvasRef = useRef<SkinCanvasRef>(null);
 
   const handleSkinChange = (imageData: ImageData) => {
-    // Конвертируем ImageData в data URL для предпросмотра
     const canvas = document.createElement("canvas");
     canvas.width = imageData.width;
     canvas.height = imageData.height;
@@ -37,7 +36,7 @@ export default function CreateSkinPage() {
     }
   };
 
-  const handleSave = async () => {
+  const handleSubmitForReview = async () => {
     if (!user) {
       setError("Необходимо авторизоваться");
       return;
@@ -48,7 +47,6 @@ export default function CreateSkinPage() {
       return;
     }
 
-    // Используем метод из ref для получения dataURL
     const dataURL = canvasRef.current?.getSkinDataURL();
     if (!dataURL) {
       setError("Сначала нарисуйте скин");
@@ -57,31 +55,37 @@ export default function CreateSkinPage() {
 
     setIsSubmitting(true);
     setError(null);
+    setSuccess(null);
 
     try {
-      // Конвертируем data URL в File
       const response = await fetch(dataURL);
       const blob = await response.blob();
       const file = new File([blob], "skin.png", { type: "image/png" });
 
       const formData = new FormData();
-      formData.set("title", title.trim());
-      formData.set("category", category);
-      formData.set("model", model);
-      formData.set("skin_file", file);
+      formData.append("title", title.trim());
+      formData.append("category", category);
+      formData.append("model", model);
+      formData.append("skin_file", file);
 
-      await skinsApi.create(formData);
-      router.push("/skins?created=true");
-      router.refresh();
+      const result = await skinsApi.submitForReview(formData);
+      
+      setSuccess("Скин успешно отправлен на рассмотрение! Администратор проверит его в ближайшее время.");
+      
+      // Очищаем форму после успешной отправки
+      setTitle("");
+      
+      // Через 3 секунды перенаправляем на страницу со скинами
+      setTimeout(() => {
+        router.push("/skins?submitted=true");
+        router.refresh();
+      }, 3000);
+      
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не удалось сохранить скин");
+      setError(err instanceof Error ? err.message : "Не удалось отправить скин на рассмотрение");
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleLoadTemplate = () => {
-    canvasRef.current?.loadTemplate();
   };
 
   if (!user) {
@@ -113,42 +117,74 @@ export default function CreateSkinPage() {
         </div>
 
         {error && (
-          <div className="alert alert-error">
+          <div className="alert alert-error" style={{ 
+            background: "#fee", 
+            border: "1px solid #f99",
+            padding: "12px",
+            borderRadius: "4px",
+            marginBottom: "16px",
+            color: "#c00"
+          }}>
             {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="alert alert-success" style={{ 
+            background: "#efe", 
+            border: "1px solid #9f9",
+            padding: "12px",
+            borderRadius: "4px",
+            marginBottom: "16px",
+            color: "#090"
+          }}>
+            {success}
           </div>
         )}
 
         <div className="skin-creator-layout">
           {/* Левая колонка - редактор */}
           <div className="skin-editor-section">
-            <div className="skin-editor-toolbar">
-              <div className="toolbar-group">
-                <button 
-                  type="button" 
-                  onClick={handleLoadTemplate}
-                  className="btn-secondary"
-                >
-                  Загрузить шаблон
-                </button>
-              </div>
-
-              <div className="toolbar-group">
-                <label>
-                  Название:
+            <div className="skin-editor-toolbar" style={{ 
+              display: "flex", 
+              gap: "16px", 
+              marginBottom: "16px",
+              flexWrap: "wrap",
+              alignItems: "center"
+            }}>
+              <div className="toolbar-group" style={{ flex: 1 }}>
+                <label style={{ display: "block", marginBottom: "4px", fontWeight: "bold" }}>
+                  Название скина:
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Название скина"
+                    placeholder="Введите название"
                     maxLength={255}
+                    style={{ 
+                      width: "100%",
+                      padding: "8px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      marginTop: "4px"
+                    }}
                   />
                 </label>
               </div>
 
-              <div className="toolbar-group">
+              <div className="toolbar-group" style={{ display: "flex", gap: "12px" }}>
                 <label>
-                  Категория:
-                  <select value={category} onChange={(e) => setCategory(e.target.value)}>
+                  <span style={{ fontWeight: "bold" }}>Категория:</span>
+                  <select 
+                    value={category} 
+                    onChange={(e) => setCategory(e.target.value)}
+                    style={{ 
+                      padding: "8px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      marginLeft: "8px"
+                    }}
+                  >
                     {CATEGORIES.map(c => (
                       <option key={c} value={c}>{c}</option>
                     ))}
@@ -156,8 +192,17 @@ export default function CreateSkinPage() {
                 </label>
 
                 <label>
-                  Модель:
-                  <select value={model} onChange={(e) => setModel(e.target.value)}>
+                  <span style={{ fontWeight: "bold" }}>Модель:</span>
+                  <select 
+                    value={model} 
+                    onChange={(e) => setModel(e.target.value)}
+                    style={{ 
+                      padding: "8px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      marginLeft: "8px"
+                    }}
+                  >
                     {MODELS.map(m => (
                       <option key={m} value={m}>{m}</option>
                     ))}
@@ -166,7 +211,6 @@ export default function CreateSkinPage() {
               </div>
             </div>
 
-            {/* Исправлено: убираем ref из пропсов, используем правильный способ */}
             <SkinCanvas 
               ref={canvasRef}
               onSkinChange={handleSkinChange}
@@ -177,28 +221,58 @@ export default function CreateSkinPage() {
           </div>
 
           {/* Правая колонка - предпросмотр */}
-          <div className="skin-preview-section">
-            <div className="preview-header">
-              <h2>Предпросмотр</h2>
-              <div className="preview-tabs">
+          <div className="skin-preview-section" style={{ 
+            width: "400px",
+            marginLeft: "24px"
+          }}>
+            <div className="preview-header" style={{ 
+              display: "flex", 
+              justifyContent: "space-between", 
+              alignItems: "center",
+              marginBottom: "16px"
+            }}>
+              <h2 style={{ margin: 0 }}>Предпросмотр</h2>
+              <div className="preview-tabs" style={{ display: "flex", gap: "4px" }}>
                 <button
                   className={`preview-tab ${previewMode === "3d" ? "active" : ""}`}
                   onClick={() => setPreviewMode("3d")}
+                  style={{
+                    padding: "6px 12px",
+                    background: previewMode === "3d" ? "#007bff" : "#f0f0f0",
+                    color: previewMode === "3d" ? "#fff" : "#000",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    cursor: "pointer"
+                  }}
                 >
                   3D
                 </button>
                 <button
                   className={`preview-tab ${previewMode === "2d" ? "active" : ""}`}
                   onClick={() => setPreviewMode("2d")}
+                  style={{
+                    padding: "6px 12px",
+                    background: previewMode === "2d" ? "#007bff" : "#f0f0f0",
+                    color: previewMode === "2d" ? "#fff" : "#000",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    cursor: "pointer"
+                  }}
                 >
                   2D
                 </button>
               </div>
             </div>
 
-            <div className="preview-container">
+            <div className="preview-container" style={{ 
+              background: "#f5f5f5",
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+              padding: "20px",
+              marginBottom: "20px"
+            }}>
               {previewMode === "3d" ? (
-                <div className="preview-3d">
+                <div className="preview-3d" style={{ height: "400px" }}>
                   <Skin3DViewer 
                     skinDataURL={skinDataURL}
                     title={title || "Новый скин"}
@@ -208,19 +282,27 @@ export default function CreateSkinPage() {
                   />
                 </div>
               ) : (
-                <div className="preview-2d">
+                <div className="preview-2d" style={{ textAlign: "center" }}>
                   {skinDataURL ? (
                     <img 
                       src={skinDataURL} 
                       alt="2D preview" 
                       style={{ 
-                        width: "100%", 
+                        maxWidth: "100%", 
+                        maxHeight: "400px",
                         imageRendering: "pixelated",
-                        border: "1px solid #ddd"
+                        border: "1px solid #ddd",
+                        background: "#fff"
                       }} 
                     />
                   ) : (
-                    <div className="preview-placeholder">
+                    <div className="preview-placeholder" style={{ 
+                      height: "200px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#999"
+                    }}>
                       Нарисуйте скин для предпросмотра
                     </div>
                   )}
@@ -228,26 +310,82 @@ export default function CreateSkinPage() {
               )}
             </div>
 
-            <div className="preview-actions">
+            <div className="preview-actions" style={{ display: "flex", gap: "12px" }}>
               <button
                 type="button"
                 className="btn-primary"
-                onClick={handleSave}
+                onClick={handleSubmitForReview}
                 disabled={isSubmitting || !skinDataURL}
+                style={{
+                  flex: 1,
+                  padding: "12px",
+                  background: isSubmitting || !skinDataURL ? "#ccc" : "#28a745",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  cursor: isSubmitting || !skinDataURL ? "not-allowed" : "pointer"
+                }}
               >
-                {isSubmitting ? "Сохранение..." : "Сохранить скин"}
+                {isSubmitting ? "Отправка..." : "📨 Отправить на рассмотрение"}
               </button>
+              
+              <button
+                type="button"
+                onClick={() => {
+                  if (canvasRef.current) {
+                    canvasRef.current.clearCanvas();
+                    setSkinDataURL(null);
+                  }
+                }}
+                style={{
+                  padding: "12px 20px",
+                  background: "#dc3545",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  fontSize: "14px",
+                  cursor: "pointer"
+                }}
+              >
+                🗑️ Очистить
+              </button>
+            </div>
+
+            <div className="info-note" style={{
+              marginTop: "16px",
+              padding: "12px",
+              background: "#e7f3ff",
+              border: "1px solid #b8daff",
+              borderRadius: "4px",
+              fontSize: "14px",
+              color: "#004085"
+            }}>
+              <strong>ℹ️ Как это работает:</strong>
+              <ul style={{ margin: "8px 0 0 0", paddingLeft: "20px" }}>
+                <li>После отправки скин будет проверен администратором</li>
+                <li>Статус скина изменится с "process" на "active" после одобрения</li>
+                <li>Вы получите уведомление о результате проверки</li>
+                <li>Одобренные скины появятся в общем доступе</li>
+              </ul>
             </div>
           </div>
         </div>
 
-        <div className="skin-creator-info">
-          <h3>Как рисовать скин:</h3>
-          <ul>
+        <div className="skin-creator-info" style={{
+          marginTop: "24px",
+          padding: "16px",
+          background: "#f9f9f9",
+          borderRadius: "8px",
+          border: "1px solid #eee"
+        }}>
+          <h3 style={{ marginTop: 0 }}>Как рисовать скин:</h3>
+          <ul style={{ margin: 0, paddingLeft: "20px" }}>
             <li>Используйте сетку для точного рисования пикселей</li>
-            <li>Выбирайте цвет и размер кисти</li>
+            <li>Выбирайте цвет и размер кисти в панели инструментов</li>
             <li>В 3D предпросмотре скин вращается автоматически</li>
-            <li>Сохраните скин, чтобы поделиться им с другими</li>
+            <li>После завершения нажмите "Отправить на рассмотрение"</li>
           </ul>
         </div>
       </div>
