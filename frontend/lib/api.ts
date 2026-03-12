@@ -304,3 +304,39 @@ export const skinsApi = {
     });
   },
 };
+
+// ——— Analytics ———
+
+export type AnalyticsSummary = {
+  total_users: number;
+  banned_users: number;
+  active_users: number;
+  total_skins: number;
+  total_builds: number;
+  total_modes: number;
+  total_seeds: number;
+};
+
+export type AnalyticsChartItem = {
+  name: string;
+  value: number;
+};
+
+export type AnalyticsMonthItem = {
+  month: string;
+  count: number;
+};
+
+export type AnalyticsResponse = {
+  summary: AnalyticsSummary;
+  skins_by_category: AnalyticsChartItem[];
+  skins_by_status: AnalyticsChartItem[];
+  users_by_role: AnalyticsChartItem[];
+  new_users_by_month: AnalyticsMonthItem[];
+  content_by_type: AnalyticsChartItem[];
+};
+
+export const analyticsApi = {
+  index: () =>
+    apiFetch<AnalyticsResponse>("admin/analytics", { token: getToken() }),
+};

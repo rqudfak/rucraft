@@ -1320,14 +1320,17 @@
 }
 
 .section-page h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #0a0a0a;
+  font-size: 30px;
+  font-family: 'Impact', sans-serif;
+  font-weight: 500;
+  color: #FFFFFF;
   margin-bottom: 24px;
 }
 
 .section-page p {
-  color: #525252;
+  color: #FFFFFF;
+  font-size: 20px;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
   margin-bottom: 16px;
 }
 
