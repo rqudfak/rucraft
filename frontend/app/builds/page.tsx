@@ -47,12 +47,12 @@ export default async function BuildsPage() {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={imageSrc} alt={build.title} />
                   </div>
-                <div className="card-body">
-                  <h3 className="card-title">{build.title}</h3>
-                  <p className="card-meta">
-                    Автор: <strong>{build.author.name}</strong>
-                  </p>
-                  {build.description && <p className="card-text line-clamp-3">{build.description}</p>}
+                  <div className="card-body">
+                    <h3 className="card-title">{build.title}</h3>
+                    <p className="card-meta">
+                      Автор: <strong>{build.author.name}</strong>
+                    </p>
+                    {build.description && <p className="card-text line-clamp-3">{build.description}</p>}
                     <Link href={`/builds/${build.id}`} className="btn-link mt-3 inline-flex">
                       Подробнее
                     </Link>

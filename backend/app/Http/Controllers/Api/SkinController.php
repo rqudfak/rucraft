@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class SkinController extends Controller
 {
@@ -108,6 +109,7 @@ class SkinController extends Controller
             ], 500);
         }
     }
+
     public function index(): JsonResponse
     {
         try {

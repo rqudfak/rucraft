@@ -31,9 +31,14 @@ Route::get('/builds', [BuildController::class, 'index']);
 Route::get('/builds/{build}', [BuildController::class, 'show']);
 Route::get('/builds/{build}/download', [BuildController::class, 'downloadFile']);
 
-Route::get('/mods', [ModeController::class, 'index']);
-Route::get('/mods/{mode}', [ModeController::class, 'show']);
-Route::get('/mods/{mode}/download', [ModeController::class, 'downloadFile']);
+Route::prefix('mods')->group(function () {
+    Route::get('/', [ModeController::class, 'index']);
+    Route::post('/', [ModeController::class, 'store'])->middleware('auth:sanctum');
+    Route::get('/versions', [ModeController::class, 'versions']);
+    Route::get('/minecraft-versions', [ModeController::class, 'minecraftVersions']);
+    Route::get('/{mode}', [ModeController::class, 'show']);
+    Route::get('/{mode}/download', [ModeController::class, 'downloadFile'])->name('mods.download');
+});
 
 Route::get('/seeds', [SeedController::class, 'index']);
 Route::get('/seeds/{seed}', [SeedController::class, 'show']);
@@ -112,6 +117,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/seeds/moderation/{moderationRequest}/approve', [SeedModerationController::class, 'approve']);
         Route::post('/seeds/moderation/{moderationRequest}/reject', [SeedModerationController::class, 'reject']);
     });
+
+    Route::post('/skins/submit', [SkinController::class, 'submit']);
 });
 
 Route::get('/debug-skins-full', function() {

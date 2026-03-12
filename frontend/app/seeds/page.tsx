@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { PageSection } from "../components/PageSection";
-import { seedsApi, type SeedPost, resolveAssetUrl } from "@/lib/api";
+import { seedsApi, type SeedPost, resolveAssetUrl, resolveStorageUrl } from "@/lib/api";
 import { SeedsToolbar } from "./SeedsToolbar";
 import MinecraftSeedGenerator from "../components/MinecraftSeedGenerator";
 
@@ -45,16 +45,18 @@ export default async function SeedsPage() {
         ) : seeds.length === 0 ? (
           <p>Сидов пока нет.</p>
         ) : (
-           
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+          <>
             <div className="mb-8">
               <MinecraftSeedGenerator />
             </div>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
               {seeds.map((seed) => {
-                const imageSrc =
-                  seed.image_url ??
-                  resolveAssetUrl(seed.image) ??
+                const imageSrc = 
+                  seed.image_url ?? 
+                  resolveStorageUrl(seed.image) ?? 
+                  resolveAssetUrl(seed.image) ?? 
                   "/placeholder-seed.png";
+                  
                 return (
                   <article key={seed.id} className="card">
                     <div className="card-image">
@@ -80,6 +82,7 @@ export default async function SeedsPage() {
                 );
               })}
             </div>
+          </>
         )}
       </PageSection>
     </div>
