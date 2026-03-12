@@ -47,6 +47,7 @@ export default async function Home() {
 
   return (
     <>
+    <div className="home-page">
       {/* HeroSlider с исправленными кнопками */}
       <HeroSlider />
 
@@ -231,6 +232,7 @@ export default async function Home() {
           </Link>
         </div>
       </section>
+      </div>
     </>
   );
 }
