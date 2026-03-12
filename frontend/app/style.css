@@ -372,7 +372,7 @@
   position: relative;
   width: 80%;
   max-width: 1282px;
-  height: 500px;
+  height: 530px;
   overflow: hidden;
   justify-content: center;
   margin: 10% auto;
@@ -381,16 +381,22 @@
 .hero-slider-track {
   display: flex;
   height: 100%;
-  width: 300%;
+  width: 400%;
   animation: hero-slide 15s ease-in-out infinite;
 }
 
 .hero-slide {
   height: 100%;
-  width: 33.333%;
+  width: 25%;
   flex-shrink: 0;
   background-size: cover;
   background-position: center;
+}
+
+.hero-slide-image {
+  width: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .hero-slide-1 { background: linear-gradient(to bottom right, #064e3b, #0f766e, #0e7490); }
@@ -462,8 +468,7 @@
   height: 88px;
   padding: 0;
   border: none;
-  background: rgba(0,0,0,0.3);
-  color: #fff;
+  background-color: transparent;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -471,14 +476,23 @@
   flex-shrink: 0;
 }
 
-.hero-nav-btn:hover {
-  background: rgba(0,0,0,0.5);
-}
-
-.hero-nav-btn svg {
+.hero-nav-icon {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.hero-nav-btn.prev .hero-nav-icon {
+  transform: scaleX(-1);
+}
+
+.hero-nav-btn.prev:hover .hero-nav-icon {
+  transform: scaleX(-1) scale(1.4);
+}
+
+.hero-nav-btn.next:hover .hero-nav-icon {
+  transform: scale(1.4);
 }
 
 /* Блок Постройки: 86px от слайдера */
@@ -1587,10 +1601,10 @@
 
 /* Анимация слайдера */
 @keyframes hero-slide {
-  0%, 28% { transform: translateX(0); }
-  33%, 61% { transform: translateX(-33.333%); }
-  66%, 94% { transform: translateX(-66.666%); }
-  100% { transform: translateX(-66.666%); }
+  0%, 20%  { transform: translateX(0); }
+  25%, 45% { transform: translateX(-25%); }
+  50%, 70% { transform: translateX(-50%); }
+  75%, 100% { transform: translateX(-75%); }
 }
 
 /* ========================================
