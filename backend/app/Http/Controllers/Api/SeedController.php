@@ -130,7 +130,6 @@ class SeedController extends Controller
     {
         $seed->load(['user', 'images']);
 
-        // 🔥 ВАЖНО: Парсим координаты из JSON строки в массив
         $coordinates = [];
         if ($seed->coordinates) {
             // Проверяем, является ли строка JSON массивом
